@@ -46,8 +46,6 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            let stream = fs.createReadStream('${{ matrix.NAME }}.tar.gz')
-            const fs = require('fs');
             const urlContent = fs.readFileSync('url.txt', 'utf8');
             let response = await github.rest.repos.createRelease({
               owner: context.repo.owner,
