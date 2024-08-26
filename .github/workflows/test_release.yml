@@ -1,0 +1,63 @@
+
+name: TEST Release
+
+on:
+    push:
+      tags:
+        - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    container: ubuntu:jammy
+
+    strategy:
+      matrix:
+        include:
+          - NAME: name1
+            VERSION: 1.0.0
+          - NAME: name2
+            VERSION: 1.0.0
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
+      - name: Build and compress database
+        if: github.event.release.tag_name == "v${{ matrix.VERSION }}"
+        run: |
+          apt-get update
+          apt-get -y install tar gzip ca-certificates
+          mkdir ${{ matrix.NAME }}
+          echo 'yo ${{ matrix.NAME }}' > ${{ matrix.NAME }}/test.txt
+          tar czf ${{ matrix.NAME }}.tar.gz ${{ matrix.NAME }}
+          npm install axios yargs fs mime-types form-data
+          node uploadToZenodo.js --recordName "v${{ matrix.VERSION }}-${{ matrix.NAME }}" --recordDescription 'Release notes for ${{ matrix.VERSION }}-${{ matrix.NAME }}' --recordCreator "Nexomis" --fileToUpload ./${{ matrix.NAME }}.tar.gz--accessToken "${{ matrix.ZENODO_TOKEN }}" > url.txt
+
+      - name: Create release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let stream = fs.createReadStream('${{ matrix.NAME }}.tar.gz')
+            
+            - name: Create release // need read and write permission for workflow https://github.com/{{owner}}/{{repo}}/settings/actions
+            uses: actions/github-script@v7
+            id: create_release
+            with:
+              script: |
+                const fs = require('fs');
+                const urlContent = fs.readFileSync('url.txt', 'utf8');
+                let response = await github.rest.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: 'v${{ matrix.VERSION }}-${{ matrix.NAME }}',
+                  name: 'Release ${{ matrix.NAME }} ${{ matrix.VERSION }}',
+                  body: `Release notes for ${{ matrix.VERSION }}-${{ matrix.NAME }}\n\nzenodo url: ${urlContent}`
+                });
+
