@@ -37,7 +37,7 @@ jobs:
           echo 'yo ${{ matrix.NAME }}' > ${{ matrix.NAME }}/test.txt
           dd if=/dev/urandom of=${{ matrix.NAME }}/randomfile bs=1M count=2560
           tar -cf - ${{ matrix.NAME }} | pigz -0 > ${{ matrix.NAME }}.tar.gz
-          npm install axios yargs fs mime-types form-data
+          npm install axios yargs fs mime-types form-data axios-retry
           ls -lh
           node uploadToZenodo.js --recordName "v${{ matrix.VERSION }}-${{ matrix.NAME }}" --recordDescription 'Release notes for ${{ matrix.VERSION }}-${{ matrix.NAME }}' --recordCreator "Nexomis" --fileToUpload ./${{ matrix.NAME }}.tar.gz --accessToken "${{ secrets.ZENODO_TOKEN }}" > url.txt
       

@@ -3,6 +3,8 @@ const fs = require('fs');
 const argv = require('yargs').argv;
 const path = require('path');
 const mime = require('mime-types');
+const axiosRetry = require('axios-retry').default;
+axiosRetry(axios, { retries: 3 });
 
 // Configuration
 const zenodo_url = 'https://sandbox.zenodo.org';
