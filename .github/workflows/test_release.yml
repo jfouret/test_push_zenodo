@@ -37,7 +37,7 @@ jobs:
           echo 'yo ${{ matrix.NAME }}' > ${{ matrix.NAME }}/test.txt
           tar czf ${{ matrix.NAME }}.tar.gz ${{ matrix.NAME }}
           npm install axios yargs fs mime-types form-data
-          node uploadToZenodo.js --recordName "v${{ matrix.VERSION }}-${{ matrix.NAME }}" --recordDescription 'Release notes for ${{ matrix.VERSION }}-${{ matrix.NAME }}' --recordCreator "Nexomis" --fileToUpload ./${{ matrix.NAME }}.tar.gz--accessToken "${{ matrix.ZENODO_TOKEN }}" > url.txt
+          node uploadToZenodo.js --recordName "v${{ matrix.VERSION }}-${{ matrix.NAME }}" --recordDescription 'Release notes for ${{ matrix.VERSION }}-${{ matrix.NAME }}' --recordCreator "Nexomis" --fileToUpload ./${{ matrix.NAME }}.tar.gz --accessToken "${{ matrix.ZENODO_TOKEN }}" > url.txt
 
       - name: Create release
         uses: actions/github-script@v7
